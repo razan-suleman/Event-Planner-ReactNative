@@ -20,7 +20,9 @@ EventEase is a React Native application designed to simplify event management an
 - **Expo**: For streamlining development and deployment.  
 
 ## How to Run  
+cd new app
 npm start
+index page is HomeTab
 
 ### Additional Installations  
 - No extra installations are required as long as Expo is installed.  
