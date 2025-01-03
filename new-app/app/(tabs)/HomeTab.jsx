@@ -3,7 +3,6 @@ import { View, Text, Button, StyleSheet, Image, TouchableOpacity, ScrollView } f
 import { Client, Account } from 'appwrite';
 import { useNavigation } from '@react-navigation/native';
 
-// Initialize Appwrite client and account
 const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject('676d278b00097e04ab85');
 const account = new Account(client);
 
@@ -12,11 +11,10 @@ const HomeTab = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
-  // Check if there's an active session when the component mounts
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const currentUser = await account.get();  // Get the current user
+        const currentUser = await account.get();
         setUser(currentUser);
       } catch (error) {
         setUser(null);
@@ -28,12 +26,11 @@ const HomeTab = () => {
     fetchUser();
   }, []);
 
-  // Handle logout
   const handleLogout = async () => {
     try {
-      await account.deleteSession('current');  // Delete the current session
+      await account.deleteSession('current');
       setUser(null);
-      navigation.navigate('HomeTab');  // Navigate back to home
+      navigation.navigate('SignIn');
     } catch (error) {
       console.error("Error logging out: ", error);
     }
@@ -49,13 +46,11 @@ const HomeTab = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Header Section */}
       <View style={styles.headerContainer}>
         <Image source={require('../../assets/images/logo.png')} style={styles.headerImage} />
         <Text style={styles.title}>Welcome to EventEase!</Text>
       </View>
 
-      {/* User Auth Section */}
       {user ? (
         <View style={styles.loggedInContainer}>
           <Text style={styles.subtitle}>Hello!</Text>
@@ -66,19 +61,20 @@ const HomeTab = () => {
       ) : (
         <View style={styles.loggedOutContainer}>
           <Text style={styles.subtitle}>Please sign in to continue</Text>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Signin')}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SignIn')}>
             <Text style={styles.buttonText}>Sign In</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Additional Content Section */}
-      <View style={styles.additionalContent}>
-        <Text style={styles.contentTitle}>Discover amazing events near you!</Text>
-        <TouchableOpacity style={styles.exploreButton} onPress={() => navigation.navigate('AllEventsTab')}>
-          <Text style={styles.exploreButtonText}>Explore Events</Text>
-        </TouchableOpacity>
-      </View>
+      {user && (
+        <View style={styles.additionalContent}>
+          <Text style={styles.contentTitle}>Discover amazing events near you!</Text>
+          <TouchableOpacity style={styles.exploreButton} onPress={() => navigation.navigate('AllEventsTab')}>
+            <Text style={styles.exploreButtonText}>Explore Events</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 };

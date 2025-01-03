@@ -1,21 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Client, Databases } from 'appwrite';
+
+const client = new Client();
+const databases = new Databases(client);
+
+client
+  .setEndpoint('https://cloud.appwrite.io/v1')  
+  .setProject('676d278b00097e04ab85'); 
 
 const EventDetailsTab = ({ route, navigation }) => {
-  const { event, currentUserId } = route.params; 
-  const handleEdit = () => {
-    if (event) {
-      navigation.navigate('EditEvent', { event });
-    }
-  };
+  const { event, currentUserId } = route.params;
 
-  const handleDelete = () => {
-    navigation.navigate('HomeTab');
+  const handleDelete = async () => {
+    console.log("Event ID:", event.$id);
+
+    if (event) {
+      try {
+        await databases.deleteDocument('676d2a0e003c7819b8fc', '676d2a160018160291e4', event.$id);
+        alert('Event deleted successfully!');
+        navigation.navigate('HomeTab');
+      } catch (error) {
+        console.error('Error deleting event:', error.message);
+        alert('Failed to delete the event. Please try again.');
+      }
+    }
   };
 
   const handleGuestsList = () => {
     if (event) {
-      console.log(event);
       navigation.navigate('GuestListTab', { eventId: event.$id, ownerId: event.ownerId, currentUserId });
     }
   };
@@ -50,6 +63,7 @@ const EventDetailsTab = ({ route, navigation }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -99,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EventDetailsTab;  // This should be placed at the bottom of the file
+export default EventDetailsTab;

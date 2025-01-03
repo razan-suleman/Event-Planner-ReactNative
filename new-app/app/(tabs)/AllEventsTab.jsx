@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Client, Databases, Account, Query } from 'appwrite';
+import { ID } from 'appwrite';
+
 
 const AllEventsTab = () => {
   const [events, setEvents] = useState([]);
@@ -96,60 +98,139 @@ const AllEventsTab = () => {
   }, [userId, events]);
 
   return (
-    <div className="container mx-auto p-8">
-      <h2 className="text-4xl font-bold text-center text-indigo-600 mb-8">All Events</h2>
-      {loading ? (
-        <div className="text-center text-gray-600">Loading events...</div>
-      ) : events.length === 0 ? (
-        <div className="text-center text-gray-600">No events available.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.map((event) => (
-            <div
-              key={event.$id}
-              className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden hover:scale-105 hover:shadow-lg transition-all duration-300"
+    <div style={styles.container}>
+  <h2 style={styles.heading}>All Events</h2>
+  {loading ? (
+    <div style={styles.textCenter}>Loading events...</div>
+  ) : events.length === 0 ? (
+    <div style={styles.textCenter}>No events available.</div>
+  ) : (
+    <div style={{ ...styles.grid, ...styles.gridCols1, ...styles.smGridCols2, ...styles.lgGridCols3 }}>
+      {events.map((event) => (
+        <div
+          key={event.$id}
+          style={{
+            ...styles.card,
+            ...(registeredEvents.some((e) => e.$id === event.$id) && styles.cardHover),
+          }}
+        >
+          <div style={styles.cardHeader}>{event.name}</div>
+          <div style={styles.cardBody}>
+            <p style={styles.cardBodyText}>Date: {event.date}</p>
+            <p style={styles.cardBodyText}>Location: {event.location}</p>
+            <p style={styles.cardBodyText}>{event.description}</p>
+            <button
+              onClick={() => handleRegister(event)}
+              disabled={registeredEvents.some((e) => e.$id === event.$id)}
+              style={{
+                ...styles.button,
+                ...(registeredEvents.some((e) => e.$id === event.$id) && styles.buttonDisabled),
+              }}
             >
-              <div className="bg-indigo-600 text-white p-4">
-                <h3 className="text-xl font-semibold">{event.name}</h3>
-              </div>
-              <div className="p-6">
-                <p className="text-sm text-gray-500">Date: {event.date}</p>
-                <p className="text-sm text-gray-500">Location: {event.location}</p>
-                <p className="mt-4 text-gray-700">{event.description}</p>
-                <button
-                  onClick={() => handleRegister(event)}
-                  disabled={registeredEvents.some((e) => e.$id === event.$id)}
-                  className={`mt-6 w-full py-2 rounded-md text-white font-semibold transition-all ${
-                    registeredEvents.some((e) => e.$id === event.$id)
-                      ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-700'
-                  }`}
-                >
-                  {registeredEvents.some((e) => e.$id === event.$id) ? 'Registered' : 'Register'}
-                </button>
-              </div>
-            </div>
-          ))}
+              {registeredEvents.some((e) => e.$id === event.$id) ? "Registered" : "Register"}
+            </button>
+          </div>
         </div>
-      )}
-
-      <h3 className="text-3xl font-bold text-center text-indigo-600 mt-10 mb-6">Registered Events</h3>
-      {registeredEvents.length === 0 ? (
-        <div className="text-center text-gray-600">No events registered yet.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {registeredEvents.map((event) => (
-            <div key={event.$id} className="bg-blue-50 border border-blue-200 rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold text-blue-700">{event.name}</h3>
-              <p className="text-sm text-blue-500">Date: {event.date}</p>
-              <p className="text-sm text-blue-500">Location: {event.location}</p>
-              <p className="mt-4 text-blue-600">{event.description}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      ))}
     </div>
+  )}
+
+  <h3 style={styles.heading}>Registered Events</h3>
+  {registeredEvents.length === 0 ? (
+    <div style={styles.textCenter}>No events registered yet.</div>
+  ) : (
+    <div style={{ ...styles.grid, ...styles.gridCols1, ...styles.smGridCols2, ...styles.lgGridCols3 }}>
+      {registeredEvents.map((event) => (
+        <div key={event.$id} style={{ ...styles.card, ...styles.registeredCard }}>
+          <h3>{event.name}</h3>
+          <p>Date: {event.date}</p>
+          <p>Location: {event.location}</p>
+          <p>{event.description}</p>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
   );
+};
+const styles = {
+  container: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "20px",
+    fontFamily: "Arial, sans-serif",
+  },
+  heading: {
+    color: "#4f46e5",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  textCenter: {
+    textAlign: "center",
+    color: "#6b7280",
+  },
+  grid: {
+    display: "grid",
+    gap: "20px",
+  },
+  gridCols1: {
+    gridTemplateColumns: "1fr",
+  },
+  smGridCols2: {
+    gridTemplateColumns: "repeat(2, 1fr)",
+  },
+  lgGridCols3: {
+    gridTemplateColumns: "repeat(3, 1fr)",
+  },
+  card: {
+    backgroundColor: "white",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    overflow: "hidden",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    transition: "transform 0.3s, boxShadow 0.3s",
+  },
+  cardHover: {
+    transform: "scale(1.05)",
+    boxShadow: "0 8px 12px rgba(0, 0, 0, 0.15)",
+  },
+  cardHeader: {
+    backgroundColor: "#4f46e5",
+    color: "white",
+    padding: "15px",
+    fontSize: "1.2em",
+  },
+  cardBody: {
+    padding: "20px",
+  },
+  cardBodyText: {
+    color: "#374151",
+  },
+  button: {
+    display: "inline-block",
+    width: "100%",
+    padding: "10px",
+    backgroundColor: "#4f46e5",
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+    borderRadius: "5px",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+  },
+  buttonHover: {
+    backgroundColor: "#4338ca",
+  },
+  buttonDisabled: {
+    backgroundColor: "#d1d5db",
+    cursor: "not-allowed",
+  },
+  registeredCard: {
+    backgroundColor: "#e0f2fe",
+    borderColor: "#60a5fa",
+    color: "#1d4ed8",
+  },
 };
 
 export default AllEventsTab;
